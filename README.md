@@ -64,6 +64,7 @@ Checks if Proton Drive CLI is logged in. If not, it interactively executes `auth
 ### Usage in Calling Scripts:
 ```bash
 PROTONDRIVE_CLI=~/Downloads/proton-drive_0.9.0
+"$PROTONDRIVE_CLI" --version
 
 if ! ~/scripts/protondriveCliSync/check_protondrive_auth.sh "$PROTONDRIVE_CLI"; then
     echo "Proton Drive authentication failed. Aborting sync."

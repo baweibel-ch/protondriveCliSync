@@ -119,7 +119,92 @@ protondrive-check-auth
 
 ---
 
-## 🗑️ Uninstallation
+## 💡 4. Ready-to-Use Backup Script Templates
+
+Users can copy and adapt these example scripts for their automated backups.
+
+### Example A: Standard User Backup (After running `./install.sh`)
+Since `./install.sh` places `protondrive-sync` and `protondrive-check-auth` directly into your `PATH`, your backup script is minimal and clean:
+
+```bash
+#!/usr/bin/env bash
+# ==============================================================================
+# backup_daily.sh - Example user backup script
+# ==============================================================================
+set -euo pipefail
+
+# Path to Proton Drive CLI executable
+PROTONDRIVE_CLI="${HOME}/.local/bin/proton-drive"
+
+echo "==> Using Proton Drive CLI: ${PROTONDRIVE_CLI}"
+"$PROTONDRIVE_CLI" --version
+
+# 1. Check/ensure authentication before running syncs
+if ! protondrive-check-auth "$PROTONDRIVE_CLI"; then
+    echo "Proton Drive authentication failed or cancelled. Aborting sync."
+    exit 1
+fi
+
+# 2. Synchronize directories
+echo "==> Syncing Documents..."
+protondrive-sync "$PROTONDRIVE_CLI" ~/Documents Documents -l
+
+echo "==> Syncing Projects (excluding build artifacts & git)..."
+protondrive-sync "$PROTONDRIVE_CLI" ~/workspace/MyProject MyProject -l --workspace-excludes
+
+echo "==> Syncing Downloads (without version history to save quota)..."
+protondrive-sync "$PROTONDRIVE_CLI" ~/Downloads Downloads -l --no-history
+
+echo "✓ All backup tasks completed successfully!"
+```
+
+---
+
+### Example B: Sudo-Aware Backup Script (System / Sudo Backups)
+If your backup script is run with `sudo` (e.g. combined with `rsync` of root partitions), this template ensures commands and authentication run under your desktop user session:
+
+```bash
+#!/usr/bin/env bash
+# ==============================================================================
+# backup.sh - Standalone & Sudo-Aware Backup Script Template
+# ==============================================================================
+set -euo pipefail
+
+# Detect real user & home directory if executed with sudo
+if [ "$EUID" -eq 0 ] && [ -n "${SUDO_USER:-}" ]; then
+    TARGET_USER="$SUDO_USER"
+    TARGET_HOME=$(getent passwd "$TARGET_USER" | cut -d: -f6)
+    TARGET_UID=$(id -u "$TARGET_USER")
+    RUN_AS_USER="sudo -u $TARGET_USER -H env DISPLAY=${DISPLAY:-:1} XAUTHORITY=/run/user/$TARGET_UID/gdm/Xauthority DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$TARGET_UID/bus XDG_RUNTIME_DIR=/run/user/$TARGET_UID"
+else
+    TARGET_USER="${USER:-$LOGNAME}"
+    TARGET_HOME="$HOME"
+    RUN_AS_USER=""
+fi
+
+# Paths
+PROTONDRIVE_CLI="${TARGET_HOME}/.local/bin/proton-drive"
+PROTONDRIVE_SYNC_DIR="${TARGET_HOME}/scripts/protondriveCliSync"
+
+echo "Using PROTONDRIVE_CLI: $PROTONDRIVE_CLI"
+$RUN_AS_USER "$PROTONDRIVE_CLI" --version
+
+# 1. Check/ensure authentication before running syncs
+if ! $RUN_AS_USER "$PROTONDRIVE_SYNC_DIR/check_protondrive_auth.sh" "$PROTONDRIVE_CLI"; then
+    echo "Proton Drive authentication failed or cancelled. Aborting sync."
+    exit 1
+fi
+
+# 2. Synchronize directories
+echo "==> Synchronizing Documents..."
+$RUN_AS_USER "$PROTONDRIVE_SYNC_DIR/sync_protondrive.sh" "$PROTONDRIVE_CLI" ~/Documents Documents -l
+
+echo "✓ Backup finished!"
+```
+
+---
+
+## 🗑️ 5. Uninstallation
 
 To cleanly remove all installed files and command wrappers:
 
