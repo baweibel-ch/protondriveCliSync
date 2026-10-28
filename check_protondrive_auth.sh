@@ -20,14 +20,12 @@ set -uo pipefail
 
 CLI="${1:-}"
 
-# If no CLI path passed, try default locations or PATH
+# If no CLI path passed, check if proton-drive is in PATH
 if [[ -z "$CLI" ]]; then
-    if [[ -x "$HOME/Downloads/proton-drive_0.9.0" ]]; then
-        CLI="$HOME/Downloads/proton-drive_0.9.0"
-    elif command -v proton-drive &>/dev/null; then
+    if command -v proton-drive &>/dev/null; then
         CLI=$(command -v proton-drive)
     else
-        echo "[ERROR] Proton Drive CLI binary not specified and not found in default locations."
+        echo "[ERROR] Proton Drive CLI binary not specified."
         echo "Usage: $0 <path_to_protondrive_cli>"
         exit 1
     fi
