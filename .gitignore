@@ -14,3 +14,9 @@ __pycache__/
 .idea/**/tasks.xml
 .idea/**/usage.statistics.xml
 .idea/**/shelf/
+
+# PyInstaller / Build artifacts
+build/
+dist/
+*.spec
+.build_venv/

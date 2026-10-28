@@ -35,13 +35,21 @@ Designed as a modern, reliable replacement for `rclone` with support for symlink
 
 ```
 protondriveCliSync/
+├── install.sh                 # Universal installer (User or System mode)
+├── build_binary.sh            # One-click standalone binary builder (PyInstaller)
 ├── sync_protondrive.sh        # Main Bash entry point (propagates all CLI flags)
 ├── sync_protondrive.py        # Core differential synchronization engine
 ├── check_protondrive_auth.sh  # Pre-flight authentication checker with timeout & auto-login
-├── README.md                  # Suite documentation
-├── .gitignore                 # Git ignore rules
-└── .idea/                     # IntelliJ IDEA project settings
+├── README.md                  # Main suite documentation & CLI reference
+├── INSTALL.md                 # Complete installation guide & binary downloads
+└── .gitignore                 # Git ignore rules
 ```
+
+---
+
+## 📦 Installation
+
+For step-by-step setup guides, package manager details, and standalone binary downloads, please see **[INSTALL.md](INSTALL.md)**.
 
 ---
 
