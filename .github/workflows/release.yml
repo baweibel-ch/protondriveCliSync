@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build & Release Standalone Binary
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build standalone binary
+        run: |
+          chmod +x build_binary.sh
+          ./build_binary.sh
+
+      - name: Verify build artifacts
+        run: |
+          test -f dist/protondrive-sync
+          chmod +x install.sh
+          ls -lh dist/protondrive-sync install.sh
+
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            dist/protondrive-sync
+            install.sh
