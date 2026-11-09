@@ -42,3 +42,5 @@ jobs:
           files: |
             dist/protondrive-sync
             install.sh
+            templates/backup_template.sh
+            templates/restore_template.sh
